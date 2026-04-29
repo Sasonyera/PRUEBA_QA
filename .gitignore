@@ -1,0 +1,40 @@
+# === Workspace (monorepo) ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# === VS Code / IDE ===
+.vscode/
+.idea/
+
+# =============================
+# Frontend: admin_clinica (Angular)
+# =============================
+admin_clinica/node_modules/
+admin_clinica/dist/
+admin_clinica/.angular/cache/
+admin_clinica/coverage/
+admin_clinica/tmp/
+admin_clinica/out-tsc/
+admin_clinica/npm-debug.log*
+admin_clinica/yarn-error.log*
+
+# =============================
+# Backend: api_clinica (Laravel)
+# =============================
+api_clinica/vendor/
+api_clinica/node_modules/
+api_clinica/public/build/
+api_clinica/public/hot
+api_clinica/public/storage
+api_clinica/storage/*.key
+api_clinica/storage/logs/*.log
+api_clinica/.phpunit.cache/
+api_clinica/.phpunit.result.cache
+api_clinica/.env
+api_clinica/.env.backup
+api_clinica/.env.production
+api_clinica/auth.json
+api_clinica/npm-debug.log*
+api_clinica/yarn-error.log*
