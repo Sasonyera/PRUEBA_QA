@@ -111,14 +111,7 @@ php artisan jwt:secret
 
 Editar `.env` y dejar:
 
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=clinica_db
-DB_USERNAME=clinica_user
-DB_PASSWORD=Clinica1234
-```
+
 
 Migrar y seed:
 
@@ -137,8 +130,6 @@ API en: `http://127.0.0.1:8000`
 
 Usuario demo (seed):
 
-- email: `josecode@gmail.com`
-- password: `12345678`
 
 ---
 
@@ -173,12 +164,7 @@ Frontend en: `http://localhost:4200`
 - Header: `Content-Type: application/json`
 - Body JSON:
 
-```json
-{
-  "email": "josecode@gmail.com",
-  "password": "12345678"
-}
-```
+
 
 La respuesta devuelve `access_token`.
 
