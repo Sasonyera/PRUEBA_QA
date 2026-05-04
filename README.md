@@ -85,49 +85,6 @@ cd PROYECTO_FINAL
 
 ## 3) Configurar la base de datos (MySQL)
 
-### Linux
-
-Entrar como root por socket:
-
-```bash
-sudo mysql
-```
-
-Dentro de MySQL:
-
-```sql
-CREATE DATABASE IF NOT EXISTS clinica_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-DROP USER IF EXISTS 'clinica_user'@'localhost';
-DROP USER IF EXISTS 'clinica_user'@'127.0.0.1';
-
-CREATE USER 'clinica_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Clinica1234';
-CREATE USER 'clinica_user'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'Clinica1234';
-
-GRANT ALL PRIVILEGES ON clinica_db.* TO 'clinica_user'@'localhost';
-GRANT ALL PRIVILEGES ON clinica_db.* TO 'clinica_user'@'127.0.0.1';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-### Windows
-
-Abrir MySQL CLI (o MySQL Workbench) con usuario root y ejecutar lo mismo:
-
-```sql
-CREATE DATABASE IF NOT EXISTS clinica_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-DROP USER IF EXISTS 'clinica_user'@'localhost';
-DROP USER IF EXISTS 'clinica_user'@'127.0.0.1';
-
-CREATE USER 'clinica_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Clinica1234';
-CREATE USER 'clinica_user'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'Clinica1234';
-
-GRANT ALL PRIVILEGES ON clinica_db.* TO 'clinica_user'@'localhost';
-GRANT ALL PRIVILEGES ON clinica_db.* TO 'clinica_user'@'127.0.0.1';
-FLUSH PRIVILEGES;
-```
-
 ---
 
 ## 4) Backend (Laravel) - api_clinica
