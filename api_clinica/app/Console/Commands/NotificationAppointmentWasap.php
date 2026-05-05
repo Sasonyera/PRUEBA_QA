@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use App\Models\Appointment\Appointment;
 
 class NotificationAppointmentWasap extends Command
@@ -27,21 +28,25 @@ class NotificationAppointmentWasap extends Command
      */
     public function handle()
     {
-        //
+        if (!filter_var(env('WHATSAPP_NOTIFICATIONS_ENABLED', false), FILTER_VALIDATE_BOOL)) {
+            Log::info('WhatsApp notifications are disabled.');
+            return Command::SUCCESS;
+        }
+
         date_default_timezone_set("America/Lima");
-        $simulet_hour_number = date("2023-11-27 9:20:35");//strtotime(date("2023-10-24 09:35:35"));
-        $appointments = Appointment::whereDate("date_appointment","2023-11-27")//now()->format("Y-m-d")
-                                    ->where("status",1) 
+        $now = now();
+        $currentDate = $now->format("Y-m-d");
+        $appointments = Appointment::whereDate("date_appointment", $currentDate)
+                                    ->where("status", 1)
                                     ->get();
-        $now_time_number = strtotime($simulet_hour_number);//now()->format("Y-m-d h:i:s")
+        $now_time_number = $now->timestamp;
         $patients = collect([]);
         foreach ($appointments as $key => $appointment) {
             $hour_start = $appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_start;
             $hour_end = $appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_end;
             
-            // 2023-10-25 08:30:00 -> 2023-10-25 07:30:00
-            $hour_start = strtotime(Carbon::parse("2023-11-27"." ".$hour_start)->subHour());
-            $hour_end = strtotime(Carbon::parse("2023-11-27"." ".$hour_end)->subHour());
+            $hour_start = strtotime(Carbon::parse($currentDate." ".$hour_start)->subHour());
+            $hour_end = strtotime(Carbon::parse($currentDate." ".$hour_end)->subHour());
            
             if($hour_start <= $now_time_number && $hour_end >= $now_time_number){
                 $patients->push([
@@ -60,13 +65,25 @@ class NotificationAppointmentWasap extends Command
         }
 
         foreach ($patients as $key => $patient) {
-            $accessToken = 'EAAFQqJKpYMkBOZBl3W4ZARhFd5QO4ZCXjLBYsSrTMNKDvbGnQaaFvxSt4tv7lFdenjw3RPZC9o0Y0IwE6PFPF54ixFtyfGCXhmRJsYXDIfWZCcKnLwN5yWZAtzMv2igZCyQK44RDm5tV5ZBo93CVZAuQ4yWc80diIGHkxGKIzZCGCRXtsnRu6nFB2WZCynWsjantvsBNhHfE364MxxvWBPQkIhulrMzlruhtQ6h7QZDZD';
-         
-            $fbApiUrl = 'https://graph.facebook.com/v17.0/137404272785248/messages';
+            $accessToken = env('WHATSAPP_ACCESS_TOKEN');
+            $fbApiUrl = env('WHATSAPP_API_URL');
+            $to = $patient["mobile"] ?? null;
+
+            if (!$accessToken || !$fbApiUrl) {
+                Log::warning('WhatsApp token or API URL is not configured.');
+                continue;
+            }
+
+            if (!$to) {
+                Log::warning('Patient mobile not found for WhatsApp notification.', [
+                    'patient' => $patient,
+                ]);
+                continue;
+            }
         
             $data = [
                 'messaging_product' => 'whatsapp',
-                'to' => 'xxxxxxxxxxxxxx',
+                'to' => $to,
                 'type' => 'template',
                 'template' => [
                     'name' => 'recordatorio',
@@ -113,13 +130,20 @@ class NotificationAppointmentWasap extends Command
             
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
             
             curl_close($ch);
-            
-            echo "HTTP Code: $httpCode\n";
-            echo "Response:\n$response\n";
+
+            if ($response === false || $httpCode >= 400) {
+                Log::error('WhatsApp notification failed.', [
+                    'http_code' => $httpCode,
+                    'curl_error' => $curlError,
+                    'response' => $response,
+                    'to' => $to,
+                ]);
+            }
         }
-        
-        dd($patients);
+
+        return Command::SUCCESS;
     }
 }
