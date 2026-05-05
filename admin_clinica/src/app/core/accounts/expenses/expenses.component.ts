@@ -46,7 +46,7 @@ export class ExpensesComponent implements OnInit {
 
     this.data.getExpenses().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: expenses, index: number) => {
+      data.data.forEach((res: expenses, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
           

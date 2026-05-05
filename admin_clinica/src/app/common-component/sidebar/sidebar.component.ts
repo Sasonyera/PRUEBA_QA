@@ -74,8 +74,8 @@ export class SidebarComponent {
 
   public expandSubMenus(menu: MenuItem): void {
     sessionStorage.setItem('menuValue', menu.menuValue);
-    this.sidebarData.map((mainMenus: SideBarData) => {
-      mainMenus.menu.map((resMenu: MenuItem) => {
+    this.sidebarData.forEach((mainMenus: SideBarData) => {
+      mainMenus.menu.forEach((resMenu: MenuItem) => {
         if (resMenu.menuValue == menu.menuValue) {
           menu.showSubRoute = !menu.showSubRoute;
         } else {
