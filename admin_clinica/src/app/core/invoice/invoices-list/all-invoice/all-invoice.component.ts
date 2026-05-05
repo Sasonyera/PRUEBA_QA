@@ -43,7 +43,7 @@ export class AllInvoiceComponent implements OnInit{
 
     this.data.getAllInvoice().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: allInvoice, index: number) => {
+      data.data.forEach((res: allInvoice, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
         

@@ -43,7 +43,7 @@ export class InvoicesDraftComponent implements OnInit{
 
     this.data.getInvoicesDraft().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: invoicedraft, index: number) => {
+      data.data.forEach((res: invoicedraft, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
           

@@ -44,7 +44,7 @@ export class StaffLeaveComponent implements OnInit{
 
     this.data.getStaffLeave().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: staffleave, index: number) => {
+      data.data.forEach((res: staffleave, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

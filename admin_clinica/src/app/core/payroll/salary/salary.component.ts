@@ -44,7 +44,7 @@ export class SalaryComponent implements OnInit{
 
     this.data.getSalary().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: salary, index: number) => {
+      data.data.forEach((res: salary, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

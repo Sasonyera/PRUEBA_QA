@@ -41,7 +41,7 @@ export class DoctorsListComponent implements OnInit{
 
     this.data.getDoctorsList().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: doctorlist, index: number) => {
+      data.data.forEach((res: doctorlist, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

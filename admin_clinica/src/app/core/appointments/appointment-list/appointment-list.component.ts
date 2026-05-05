@@ -41,7 +41,7 @@ export class AppointmentListComponent  implements OnInit {
 
     this.data.getAppointmentList().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: appointmentList, index: number) => {
+      data.data.forEach((res: appointmentList, index: number) => {
         var serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

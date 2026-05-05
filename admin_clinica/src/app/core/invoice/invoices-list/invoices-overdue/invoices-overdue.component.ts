@@ -43,7 +43,7 @@ export class InvoicesOverdueComponent implements OnInit {
 
     this.data.getInvoicesOverdue().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: invoiceoverdue, index: number) => {
+      data.data.forEach((res: invoiceoverdue, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

@@ -42,7 +42,7 @@ export class TablesDatatablesComponent implements OnInit {
 
     this.data.getDataTables().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: datatables, index: number) => {
+      data.data.forEach((res: datatables, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

@@ -43,7 +43,7 @@ export class InvoicesCancelledComponent implements OnInit {
 
     this.data.getInvoicesCancelled().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: invoicescancelled, index: number) => {
+      data.data.forEach((res: invoicescancelled, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

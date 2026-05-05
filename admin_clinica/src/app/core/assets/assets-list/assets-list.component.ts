@@ -42,7 +42,7 @@ export class AssetsListComponent implements OnInit{
 
     this.data.getAssetsList().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: assetsList, index: number) => {
+      data.data.forEach((res: assetsList, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

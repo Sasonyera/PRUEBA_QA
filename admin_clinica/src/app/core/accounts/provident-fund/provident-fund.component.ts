@@ -43,7 +43,7 @@ export class ProvidentFundComponent implements OnInit {
 
     this.data.getProvidentFund().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: providentFund, index: number) => {
+      data.data.forEach((res: providentFund, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
           

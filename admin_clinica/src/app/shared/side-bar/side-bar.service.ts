@@ -31,8 +31,8 @@ export class SideBarService {
     if (localStorage.getItem('isMiniSidebar')) {
       this.toggleSideBar.next("false");
       localStorage.removeItem('isMiniSidebar');
-      this.data.sideBar.map((mainMenus: MainMenu) => {
-        mainMenus.menu.map((resMenu: MenuItem) => {
+      this.data.sideBar.forEach((mainMenus: MainMenu) => {
+        mainMenus.menu.forEach((resMenu: MenuItem) => {
           const menuValue = sessionStorage.getItem('menuValue');
           if (menuValue && menuValue == resMenu.menuValue) {
             resMenu.showSubRoute = true;
@@ -42,8 +42,8 @@ export class SideBarService {
     } else {
       this.toggleSideBar.next('true');
       localStorage.setItem('isMiniSidebar', 'true');
-      this.data.sideBar.map((mainMenus: MainMenu) => {
-        mainMenus.menu.map((resMenu: MenuItem) => {
+      this.data.sideBar.forEach((mainMenus: MainMenu) => {
+        mainMenus.menu.forEach((resMenu: MenuItem) => {
           resMenu.showSubRoute = false;
         });
       });

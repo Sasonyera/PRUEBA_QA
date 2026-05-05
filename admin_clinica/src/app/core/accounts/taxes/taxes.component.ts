@@ -42,7 +42,7 @@ export class TaxesComponent implements OnInit {
 
     this.data.getTaxes().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: taxes, index: number) => {
+      data.data.forEach((res: taxes, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

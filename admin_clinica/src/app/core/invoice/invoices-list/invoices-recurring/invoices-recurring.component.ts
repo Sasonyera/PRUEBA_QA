@@ -43,7 +43,7 @@ export class InvoicesRecurringComponent  implements OnInit{
 
     this.data.getInvoicesRecurring().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: invoicerecurring, index: number) => {
+      data.data.forEach((res: invoicerecurring, index: number) => {
         var serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
           

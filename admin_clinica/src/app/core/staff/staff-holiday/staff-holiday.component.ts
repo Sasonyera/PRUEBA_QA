@@ -42,7 +42,7 @@ export class StaffHolidayComponent implements OnInit {
 
     this.data.getStaffHoliday().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: staffholidays, index: number) => {
+      data.data.forEach((res: staffholidays, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          

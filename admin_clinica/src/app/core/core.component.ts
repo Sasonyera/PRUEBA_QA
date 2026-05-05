@@ -44,15 +44,15 @@ export class CoreComponent {
     this.sideBar.expandSideBar.subscribe((res: string) => {
       this.expandMenu = res;
       if (res == 'false' && this.miniSidebar == 'true') {
-        this.data.sideBar.map((mainMenus: SideBarData) => {
-          mainMenus.menu.map((resMenu: MenuItem) => {
+        this.data.sideBar.forEach((mainMenus: SideBarData) => {
+          mainMenus.menu.forEach((resMenu: MenuItem) => {
             resMenu.showSubRoute = false;
           });
         });
       }
       if (res == 'true' && this.miniSidebar == 'true') {
-        this.data.sideBar.map((mainMenus: SideBarData) => {
-          mainMenus.menu.map((resMenu: MenuItem) => {
+        this.data.sideBar.forEach((mainMenus: SideBarData) => {
+          mainMenus.menu.forEach((resMenu: MenuItem) => {
             const menuValue = sessionStorage.getItem('menuValue');
             if (menuValue && menuValue == resMenu.menuValue) {
               resMenu.showSubRoute = true;

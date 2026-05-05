@@ -359,7 +359,7 @@ export class PatientDashboardComponent implements OnInit {
 
     this.data.getPatientDashboard().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: patientDashboard, index: number) => {
+      data.data.forEach((res: patientDashboard, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
           

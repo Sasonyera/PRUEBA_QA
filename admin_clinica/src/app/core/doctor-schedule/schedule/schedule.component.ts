@@ -42,7 +42,7 @@ export class ScheduleComponent implements OnInit{
 
     this.data.getSchedule().subscribe((data: apiResultFormat) => {
       this.totalData = data.totalData;
-      data.data.map((res: schedule, index: number) => {
+      data.data.forEach((res: schedule, index: number) => {
         const serialNumber = index + 1;
         if (index >= this.skip && serialNumber <= this.limit) {
          
