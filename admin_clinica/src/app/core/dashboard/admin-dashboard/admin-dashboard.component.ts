@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { routes } from 'src/app/shared/routes/routes';
 import {
   ApexAxisChartSeries,
