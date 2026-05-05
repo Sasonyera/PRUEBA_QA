@@ -34,7 +34,7 @@ export class CoreComponent {
     });
 
     this.sideBar.toggleMobileSideBar.subscribe((res: string) => {
-      if (res == 'true' || res == 'true') {
+      if (res == 'true') {
         this.mobileSidebar = 'true';
       } else {
         this.mobileSidebar = 'false';
