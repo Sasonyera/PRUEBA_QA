@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SpecialitieService } from '../service/specialitie.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { SpecialitieService } from '../service/specialitie.service';
   templateUrl: './add-specialitie.component.html',
   styleUrls: ['./add-specialitie.component.scss']
 })
-export class AddSpecialitieComponent {
+export class AddSpecialitieComponent implements OnInit {
 
   name:string = '';
   valid_form: boolean = false;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PatientMService } from '../service/patient-m.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { PatientMService } from '../service/patient-m.service';
   templateUrl: './add-patient-m.component.html',
   styleUrls: ['./add-patient-m.component.scss']
 })
-export class AddPatientMComponent {
+export class AddPatientMComponent implements OnInit {
   public selectedValue !: string  ;
   public name:string = '';
   public surname:string = '';

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppointmentService } from '../service/appointment.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './atencion-medical.component.html',
   styleUrls: ['./atencion-medical.component.scss']
 })
-export class AtencionMedicalComponent {
+export class AtencionMedicalComponent implements OnInit {
 
   name:string = '';
   surname:string = '';

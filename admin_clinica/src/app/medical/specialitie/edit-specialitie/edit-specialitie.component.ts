@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SpecialitieService } from '../service/specialitie.service';
 
@@ -7,7 +7,7 @@ import { SpecialitieService } from '../service/specialitie.service';
   templateUrl: './edit-specialitie.component.html',
   styleUrls: ['./edit-specialitie.component.scss']
 })
-export class EditSpecialitieComponent {
+export class EditSpecialitieComponent implements OnInit {
 
   
   name:string = '';

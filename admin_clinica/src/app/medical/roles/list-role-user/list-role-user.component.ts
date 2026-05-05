@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { RolesService } from '../service/roles.service';
 import { Sort } from '@angular/material/sort';
@@ -9,7 +9,7 @@ declare var $:any;
   templateUrl: './list-role-user.component.html',
   styleUrls: ['./list-role-user.component.scss']
 })
-export class ListRoleUserComponent {
+export class ListRoleUserComponent implements OnInit {
 
   public rolesList:any = [];
   dataSource!: MatTableDataSource<any>;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppointmentService } from '../service/appointment.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { AppointmentService } from '../service/appointment.service';
   templateUrl: './add-appointments.component.html',
   styleUrls: ['./add-appointments.component.scss']
 })
-export class AddAppointmentsComponent {
+export class AddAppointmentsComponent implements OnInit {
 
 
   hours:any = [];

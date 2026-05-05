@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SpecialitieService } from '../service/specialitie.service';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
   templateUrl: './list-specialitie.component.html',
   styleUrls: ['./list-specialitie.component.scss']
 })
-export class ListSpecialitieComponent {
+export class ListSpecialitieComponent implements OnInit {
   public specialitiesList:any = [];
   dataSource!: MatTableDataSource<any>;
 

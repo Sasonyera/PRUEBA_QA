@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { AppointmentPayService } from '../service/appointment-pay.service';
 
@@ -7,7 +7,7 @@ import { AppointmentPayService } from '../service/appointment-pay.service';
   templateUrl: './list-appointment-pay.component.html',
   styleUrls: ['./list-appointment-pay.component.scss']
 })
-export class ListAppointmentPayComponent {
+export class ListAppointmentPayComponent implements OnInit {
 
   public searchDataValue:string = '';
   public searchDataDoctor:string = '';

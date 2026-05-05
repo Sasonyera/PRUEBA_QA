@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StaffService } from '../service/staff.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { StaffService } from '../service/staff.service';
   templateUrl: './add-staff-n.component.html',
   styleUrls: ['./add-staff-n.component.scss']
 })
-export class AddStaffNComponent {
+export class AddStaffNComponent implements OnInit {
 
   public selectedValue !: string  ;
   public name:string = '';

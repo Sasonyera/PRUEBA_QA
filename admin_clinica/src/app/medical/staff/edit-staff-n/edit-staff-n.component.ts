@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { StaffService } from '../service/staff.service';
 
@@ -7,7 +7,7 @@ import { StaffService } from '../service/staff.service';
   templateUrl: './edit-staff-n.component.html',
   styleUrls: ['./edit-staff-n.component.scss']
 })
-export class EditStaffNComponent {
+export class EditStaffNComponent implements OnInit {
 
   public selectedValue !: string  ;
   public name:string = '';

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataService } from 'src/app/shared/data/data.service';
 import { RolesService } from '../service/roles.service';
 
@@ -7,7 +7,7 @@ import { RolesService } from '../service/roles.service';
   templateUrl: './add-role-user.component.html',
   styleUrls: ['./add-role-user.component.scss']
 })
-export class AddRoleUserComponent {
+export class AddRoleUserComponent implements OnInit {
 
   sideBar:any = [];
   name:string = '';

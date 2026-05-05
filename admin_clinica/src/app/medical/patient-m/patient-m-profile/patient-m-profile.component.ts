@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PatientMService } from '../service/patient-m.service';
 
@@ -7,7 +7,7 @@ import { PatientMService } from '../service/patient-m.service';
   templateUrl: './patient-m-profile.component.html',
   styleUrls: ['./patient-m-profile.component.scss']
 })
-export class PatientMProfileComponent {
+export class PatientMProfileComponent implements OnInit {
   patientProfile:any = [];
   option_selected:number = 1;
 

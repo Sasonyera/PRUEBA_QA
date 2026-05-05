@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -10,7 +10,7 @@ import { CalendarAppointmentService } from '../service/calendar-appointment.serv
   templateUrl: './appointment-calendar.component.html',
   styleUrls: ['./appointment-calendar.component.scss']
 })
-export class AppointmentCalendarComponent {
+export class AppointmentCalendarComponent implements OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: any;

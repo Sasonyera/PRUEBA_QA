@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppointmentService } from '../service/appointment.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './edit-appointments.component.html',
   styleUrls: ['./edit-appointments.component.scss']
 })
-export class EditAppointmentsComponent {
+export class EditAppointmentsComponent implements OnInit {
   hours:any = [];
   specialities:any = [];
   date_appointment:any;

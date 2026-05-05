@@ -91,7 +91,7 @@ export type ChartOptionsTwo = {
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   public routes = routes;
   public selectedValue : string = "2023";
   @ViewChild('chart') chart!: ChartComponent;

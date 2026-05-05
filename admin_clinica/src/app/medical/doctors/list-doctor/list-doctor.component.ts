@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DoctorService } from '../service/doctor.service';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
   templateUrl: './list-doctor.component.html',
   styleUrls: ['./list-doctor.component.scss']
 })
-export class ListDoctorComponent {
+export class ListDoctorComponent implements OnInit {
   public usersList:any = [];
   dataSource!: MatTableDataSource<any>;
 
