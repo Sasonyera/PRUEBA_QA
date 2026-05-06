@@ -305,7 +305,4 @@ export class ListAppointmentPayComponent implements OnInit {
     }
   }
 
-  filter(){
-
-  }
 }

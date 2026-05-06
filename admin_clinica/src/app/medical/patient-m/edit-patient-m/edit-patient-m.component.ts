@@ -105,82 +105,15 @@ export class EditPatientMComponent implements OnInit {
 
   save(){
     this.text_validation = '';
-    if(!this.name || !this.n_document || !this.surname || !this.mobile){
-      this.text_validation = "LOS CAMPOS SON NECESARIOS (Nombre,Apellido,° n de document, telefono)";
-      return;
-    }
-    if(!this.name_companion || !this.surname_companion){
-      this.text_validation = "EL NOPMBRE Y APELLIDO DEL ACOMPAÑANTE ES OBLIGATORIO (Nombre,Apellido)";
-      return;
-    }
-
-    if(!this.ta || !this.temperatura || !this.fc || !this.fr || !this.peso){
-      this.text_validation = "LOS SIGNOS VITALES SON OBLIGATORIO";
+    const errorMessage = this.validateForm();
+    if (errorMessage) {
+      this.text_validation = errorMessage;
       return;
     }
 
     console.log(this.selectedValue);
 
-    let formData = new FormData();
-    formData.append("name",this.name);
-    formData.append("surname",this.surname);
-    if(this.email){
-      formData.append("email",this.email);
-    }
-    formData.append("mobile",this.mobile);
-    formData.append("n_document",this.n_document);
-    if(this.birth_date){
-      formData.append("birth_date",this.birth_date);
-    }
-    formData.append("gender",this.gender+"");
-    if(this.education){
-      formData.append("education",this.education);
-    }
-    if(this.address){
-      formData.append("address",this.address);
-    }
-    if(this.FILE_AVATAR){
-      formData.append("imagen",this.FILE_AVATAR);
-    }
-    if(this.antecedent_family){
-      formData.append("antecedent_family",this.antecedent_family);
-    }
-    if(this.antecedent_personal){
-      formData.append("antecedent_personal",this.antecedent_personal);
-    }
-    if(this.antecedent_allergic){
-      formData.append("antecedent_allergic",this.antecedent_allergic);
-    }
-
-    formData.append("name_companion",this.name_companion);
-    formData.append("surname_companion",this.surname_companion);
-    if(this.mobile_companion){
-      formData.append("mobile_companion",this.mobile_companion);
-    }
-    if(this.relationship_companion){
-      formData.append("relationship_companion",this.relationship_companion);
-    }
-    if(this.name_responsible){
-      formData.append("name_responsible",this.name_responsible);
-    }
-    if(this.surname_responsible){
-      formData.append("surname_responsible",this.surname_responsible);
-    }
-    if(this.mobile_responsible){
-      formData.append("mobile_responsible",this.mobile_responsible);
-    }
-    if(this.relationship_responsible){
-      formData.append("relationship_responsible",this.relationship_responsible);
-    }
-    if(this.current_disease){
-      formData.append("current_disease",this.current_disease);
-    }
-
-    formData.append("ta",this.ta+"");
-    formData.append("temperatura",this.temperatura+"");
-    formData.append("fc",this.fc+"");
-    formData.append("fr",this.fr+"");
-    formData.append("peso",this.peso+"");
+    const formData = this.buildFormData();
     this.patientService.updatePatient(this.patient_id,formData).subscribe((resp:any) => {
       console.log(resp);
 
@@ -190,6 +123,59 @@ export class EditPatientMComponent implements OnInit {
         this.text_success = 'El paciente ha sido editado correctamente';
       }
     })
+  }
+
+  private validateForm(): string | null {
+    if(!this.name || !this.n_document || !this.surname || !this.mobile){
+      return "LOS CAMPOS SON NECESARIOS (Nombre,Apellido,° n de document, telefono)";
+    }
+    if(!this.name_companion || !this.surname_companion){
+      return "EL NOPMBRE Y APELLIDO DEL ACOMPAÑANTE ES OBLIGATORIO (Nombre,Apellido)";
+    }
+    if(!this.ta || !this.temperatura || !this.fc || !this.fr || !this.peso){
+      return "LOS SIGNOS VITALES SON OBLIGATORIO";
+    }
+    return null;
+  }
+
+  private buildFormData(): FormData {
+    const formData = new FormData();
+    formData.append("name",this.name);
+    formData.append("surname",this.surname);
+    this.appendIfPresent(formData, "email", this.email);
+    formData.append("mobile",this.mobile);
+    formData.append("n_document",this.n_document);
+    this.appendIfPresent(formData, "birth_date", this.birth_date);
+    formData.append("gender",this.gender+"");
+    this.appendIfPresent(formData, "education", this.education);
+    this.appendIfPresent(formData, "address", this.address);
+    this.appendIfPresent(formData, "imagen", this.FILE_AVATAR);
+    this.appendIfPresent(formData, "antecedent_family", this.antecedent_family);
+    this.appendIfPresent(formData, "antecedent_personal", this.antecedent_personal);
+    this.appendIfPresent(formData, "antecedent_allergic", this.antecedent_allergic);
+
+    formData.append("name_companion",this.name_companion);
+    formData.append("surname_companion",this.surname_companion);
+    this.appendIfPresent(formData, "mobile_companion", this.mobile_companion);
+    this.appendIfPresent(formData, "relationship_companion", this.relationship_companion);
+    this.appendIfPresent(formData, "name_responsible", this.name_responsible);
+    this.appendIfPresent(formData, "surname_responsible", this.surname_responsible);
+    this.appendIfPresent(formData, "mobile_responsible", this.mobile_responsible);
+    this.appendIfPresent(formData, "relationship_responsible", this.relationship_responsible);
+    this.appendIfPresent(formData, "current_disease", this.current_disease);
+
+    formData.append("ta",this.ta+"");
+    formData.append("temperatura",this.temperatura+"");
+    formData.append("fc",this.fc+"");
+    formData.append("fr",this.fr+"");
+    formData.append("peso",this.peso+"");
+    return formData;
+  }
+
+  private appendIfPresent(formData: FormData, key: string, value: any): void {
+    if (value !== null && value !== undefined && value !== '') {
+      formData.append(key, value);
+    }
   }
 
   loadFile($event:any){

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { SpecialitieService } from '../service/specialitie.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { SpecialitieService } from '../service/specialitie.service';
   templateUrl: './add-specialitie.component.html',
   styleUrls: ['./add-specialitie.component.scss']
 })
-export class AddSpecialitieComponent implements OnInit {
+export class AddSpecialitieComponent {
 
   name:string = '';
   valid_form: boolean = false;
@@ -17,10 +17,6 @@ export class AddSpecialitieComponent implements OnInit {
   ) {
     
   }
-  ngOnInit(): void {
-
-  }
-
   save(){
     this.valid_form = false;
     if(!this.name){
