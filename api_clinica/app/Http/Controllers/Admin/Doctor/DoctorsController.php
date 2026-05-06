@@ -21,6 +21,9 @@ use App\Http\Resources\Appointment\AppointmentCollection;
 
 class DoctorsController extends Controller
 {
+    private const CACHE_PROFILE_KEY_PREFIX = 'profile_doctor_#';
+    private const TIME_FORMAT = 'h:i A';
+
     /**
      * Display a listing of the resource.
      */
@@ -46,7 +49,7 @@ class DoctorsController extends Controller
 
     public function profile($id){
         $this->authorize('profileDoctor',Doctor::class);
-        $cachedRecord = Redis::get('profile_doctor_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_KEY_PREFIX.$id);
         $data_doctor = [];
         if(isset($cachedRecord)) {
             $data_doctor = json_decode($cachedRecord, FALSE);
@@ -80,8 +83,8 @@ class DoctorsController extends Controller
                         ],
                         "date_appointment" => $appointment->date_appointment,
                         "date_appointment_format" => Carbon::parse($appointment->date_appointment)->format("d M Y"),
-                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_start)->format("h:i A"),
-                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_end)->format("h:i A"),
+                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_start)->format(self::TIME_FORMAT),
+                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_end)->format(self::TIME_FORMAT),
                         "appointment_attention" => $appointment->attention ? [
                             "id" => $appointment->attention->id,
                             "description" => $appointment->attention->description,
@@ -94,7 +97,7 @@ class DoctorsController extends Controller
                     ];
                 }),
             ];
-            Redis::set('profile_doctor_#'.$id, json_encode($data_doctor),'EX', 3600);
+            Redis::set(self::CACHE_PROFILE_KEY_PREFIX.$id, json_encode($data_doctor),'EX', 3600);
         }
 
         return response()->json($data_doctor);
@@ -111,15 +114,15 @@ class DoctorsController extends Controller
         foreach ($doctor_schedule_hours->groupBy("hour") as $key => $schedule_hour) {
             $hours_days->push([
                 "hour" => $key,
-                "format_hour" => Carbon::parse(date("Y-m-d").' '.$key.":00:00")->format("h:i A"),
+                "format_hour" => Carbon::parse(date("Y-m-d").' '.$key.":00:00")->format(self::TIME_FORMAT),
                 "items" => $schedule_hour->map(function($hour_item) {
                     // Y-m-d h:i:s 2023-10-2 00:13:30 -> 12:13:20
                     return [
                         "id" => $hour_item->id,
                         "hour_start" => $hour_item->hour_start,
                         "hour_end" => $hour_item->hour_end,
-                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$hour_item->hour_start)->format("h:i A"),
-                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$hour_item->hour_end)->format("h:i A"),
+                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$hour_item->hour_start)->format(self::TIME_FORMAT),
+                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$hour_item->hour_end)->format(self::TIME_FORMAT),
                         "hour" => $hour_item->hour,
                     ];
                 }),
@@ -210,7 +213,7 @@ class DoctorsController extends Controller
     public function update(Request $request, string $id)
     {
         $this->authorize('updateDoctor',Doctor::class);
-        $schedule_hours = json_decode($request->schedule_hours,1);
+        $schedule_hours = json_decode($request->schedule_hours,1) ?? [];
         
         $users_is_valid = User::where("id","<>",$id)->where("email",$request->email)->first();
 
@@ -223,160 +226,186 @@ class DoctorsController extends Controller
 
         $user = User::findOrFail($id);
 
-        if($request->hasFile("imagen")){
-            if($user->avatar){
-                Storage::delete($user->avatar);
-            }
-            $path = Storage::putFile("staffs",$request->file("imagen"));
-            $request->request->add(["avatar" => $path]);
-        }
-
-        if($request->password){
-            $request->request->add(["password" => bcrypt($request->password)]);
-        }
-
-        $date_clean = preg_replace('/\(.*\)|[A-Z]{3}-\d{4}/', '', $request->birth_date);
-
-        $request->request->add(["birth_date" => Carbon::parse($date_clean)->format("Y-m-d h:i:s")]);
+        $this->applyAvatar($request, $user);
+        $this->applyPassword($request);
+        $this->applyBirthDate($request);
 
         // $request->request->add(["birth_date" => Carbon::parse($request->birth_date, 'GMT')->format("Y-m-d h:i:s")]);
-        $cachedRecord = Redis::get('profile_doctor_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_KEY_PREFIX.$id);
         if(isset($cachedRecord)) {
-            Redis::del('profile_doctor_#'.$id);
+            Redis::del(self::CACHE_PROFILE_KEY_PREFIX.$id);
         }
         $user->update($request->all());
-
-        if($request->role_id != $user->roles()->first()->id){
-            $role_old = Role::findOrFail($user->roles()->first()->id);
-            $user->removeRole($role_old);
-    
-            $role_new = Role::findOrFail($request->role_id);
-            $user->assignRole($role_new);
-        }
-
-        // ALMACENAR LA DISPONIBILIDAD DE HORARIO DEL DOCTOR
-        // foreach ($user->schedule_days as $key => $schedule_day) {
-        //     $schedule_day->delete();
-        // }
-
-        // foreach ($schedule_hours as $key => $schedule_hour) {
-        //     if(sizeof($schedule_hour["children"]) > 0){
-        //         $schedule_day = DoctorScheduleDay::create([
-        //             "user_id" => $user->id,
-        //             "day" => $schedule_hour["day_name"],
-        //         ]);
-    
-        //         foreach ($schedule_hour["children"] as $children) {
-        //             DoctorScheduleJoinHour::create([
-        //                 "doctor_schedule_day_id" => $schedule_day->id,
-        //                 "doctor_schedule_hour_id" => $children["item"]["id"],
-        //             ]);
-        //         }
-        //     }
-        // }
-
-
-
-
-        // VAMOS A COMPROBAR SI TODO SIGUE IGUAL O SI SE HA BORRADO ALGUN DIA
-        foreach ($user->schedule_days as $key => $schedule_day) {
-            // DEFINIMOS UNA BANDERA PARA PODER SABER SI BORRADO UN DIA : TRUE - EXISTE / FALSE - ELIMINADO
-            $is_exists_schedule_day = false;
-            // DE LO LLENADOS EN EL HORARIO DEL DOCTOR ITERAMOS PARA HACER LA COMPROBACIÓN
-            foreach ($schedule_hours as $key => $schedule_hour) {
-                // COMPROBAMOS QUE HAY SEGMENTOS SELECCIONADOS
-                if(sizeof($schedule_hour["children"]) > 0){
-                    if($schedule_day->day == $schedule_hour["day_name"]){
-                        // SI HAY UNA COINCIDENCIA ENTONCES EL DIA QUE TENEMOS REGISTRADO ES EL MISMO QUE ESTAMOS
-                        // ENVIANDO EN EL FRONTED , ESTO NOS SIRVE PARA NO TENER QUE ELIMINARLO SINO QUE SIGA
-                        // SU FUNCIONAMIENTO
-                        $is_exists_schedule_day = true;
-                    }
-                    if($is_exists_schedule_day){
-                        // AHORA TENEMOS QUE COMPROBAR DE ESE DIA SI SUS SEGMENTOS ESTAN CORRECTOS Y NO
-                        // HAN ELIMINADO NINGUNO
-                        foreach ($schedule_day->schedules_hours as $schedules_hour) {
-                            // DEFINIMOS UNA BANDERA PARA PODER SABER SI BORRADO UN SEGMENTO : TRUE - EXISTE / FALSE - ELIMINADO
-                            $is_exists_schedules_hour = false;
-                            // SEGMENTOS SELECCIONADOS
-                            foreach ($schedule_hour["children"] as $children) {
-                                if($schedules_hour->doctor_schedule_hour_id == $children["item"]["id"]){
-                                    $is_exists_schedules_hour = true;
-                                    break;
-                                }
-                            }
-                            if(!$is_exists_schedules_hour){
-                                $schedules_hour->delete();
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            if(!$is_exists_schedule_day){
-                // AL NO EXISTIR EL DIA TENEMOS QUE ELIMINAR TANTO LOS SEGMENTOS COMO EL DIA EN SI
-                foreach ($schedule_day->schedules_hours as $schedules_hour) {
-                    $schedules_hour->delete();
-                }
-                $schedule_day->delete();
-            }
-        }
-        // VAMOS A COMPROBAR SI TODO ESTA IGUAL A LO QUE MANDAMOS O SI SE HA AGREGADO ALGUN DIA
-        foreach ($schedule_hours as $key => $schedule_hour) {
-            // COMPROBAMOS QUE HAY SEGMENTOS SELECCIONADOS
-            if(sizeof($schedule_hour["children"]) > 0){
-                $is_exists_schedule_day = false;
-                // DE LOS REGISTROS QUE TENEMOS DISPONIBLES EN LA BD
-                foreach ($user->schedule_days as $key => $schedule_day) {
-                    if($schedule_day->day == $schedule_hour["day_name"]){
-                         // SI HAY UNA COINCIDENCIA ENTONCES EL DIA QUE TENEMOS REGISTRADO ES EL MISMO QUE ESTAMOS
-                        // ENVIANDO EN EL FRONTED , ESTO NOS SIRVE PARA NO TENER QUE AGREGAR SINO QUE SIGA
-                        // SU FUNCIONAMIENTO
-                        $is_exists_schedule_day = true;
-                        // break;
-                    }
-                    if($is_exists_schedule_day){
-                        // AHORA TENEMOS QUE COMPROBAR DE ESE DIA SI SUS SEGMENTOS ESTAN CORRECTOS Y NO
-                        // HAN AGREGADO NINGUNO
-                        foreach ($schedule_hour["children"] as $children) {
-                            $is_exists_schedules_hour = false;
-                            foreach ($schedule_day->schedules_hours as $schedules_hour) {
-                                if($schedules_hour->doctor_schedule_hour_id == $children["item"]["id"]){
-                                    $is_exists_schedules_hour = true;
-                                    break;
-                                }
-                            }
-                            if(!$is_exists_schedules_hour){
-                                DoctorScheduleJoinHour::create([
-                                    "doctor_schedule_day_id" => $schedule_day->id,
-                                    "doctor_schedule_hour_id" => $children["item"]["id"],
-                                ]);
-                            }
-                        }
-                        break;
-                    }
-                }
-                if(!$is_exists_schedule_day){
-                    // AL NO EXISTIR EL DIA TENEMOS QUE AGREGAR TANTO LOS SEGMENTOS COMO EL DIA EN SI
-                    $schedule_day = DoctorScheduleDay::create([
-                        "user_id" => $user->id,
-                        "day" => $schedule_hour["day_name"],
-                    ]);
-        
-                    foreach ($schedule_hour["children"] as $children) {
-                        DoctorScheduleJoinHour::create([
-                            "doctor_schedule_day_id" => $schedule_day->id,
-                            "doctor_schedule_hour_id" => $children["item"]["id"],
-                        ]);
-                    }
-                }
-            }
-        }
+        $this->syncRole($request, $user);
+        $this->syncScheduleHours($user, $schedule_hours);
 
         return response()->json([
             "message" => 200
         ]);
 
+    }
+
+    private function applyAvatar(Request $request, User $user): void
+    {
+        if(!$request->hasFile("imagen")){
+            return;
+        }
+        if($user->avatar){
+            Storage::delete($user->avatar);
+        }
+        $path = Storage::putFile("staffs",$request->file("imagen"));
+        $request->request->add(["avatar" => $path]);
+    }
+
+    private function applyPassword(Request $request): void
+    {
+        if($request->password){
+            $request->request->add(["password" => bcrypt($request->password)]);
+        }
+    }
+
+    private function applyBirthDate(Request $request): void
+    {
+        if(!$request->birth_date){
+            return;
+        }
+        $date_clean = preg_replace('/\(.*\)|[A-Z]{3}-\d{4}/', '', $request->birth_date);
+        $request->request->add(["birth_date" => Carbon::parse($date_clean)->format("Y-m-d h:i:s")]);
+    }
+
+    private function syncRole(Request $request, User $user): void
+    {
+        if($request->role_id == $user->roles()->first()->id){
+            return;
+        }
+        $role_old = Role::findOrFail($user->roles()->first()->id);
+        $user->removeRole($role_old);
+
+        $role_new = Role::findOrFail($request->role_id);
+        $user->assignRole($role_new);
+    }
+
+    private function syncScheduleHours(User $user, array $schedule_hours): void
+    {
+        $this->removeMissingScheduleDays($user, $schedule_hours);
+        $this->addMissingScheduleDays($user, $schedule_hours);
+    }
+
+    private function removeMissingScheduleDays(User $user, array $schedule_hours): void
+    {
+        foreach ($user->schedule_days as $schedule_day) {
+            $schedule_hour = $this->findScheduleHourByDay($schedule_hours, $schedule_day->day);
+            if(!$schedule_hour || !$this->hasChildren($schedule_hour)){
+                $this->deleteScheduleDay($schedule_day);
+                continue;
+            }
+            $this->removeMissingScheduleSegments($schedule_day, $schedule_hour);
+        }
+    }
+
+    private function removeMissingScheduleSegments($schedule_day, array $schedule_hour): void
+    {
+        foreach ($schedule_day->schedules_hours as $schedules_hour) {
+            $exists = $this->scheduleHourHasChild($schedule_hour, $schedules_hour->doctor_schedule_hour_id);
+            if(!$exists){
+                $schedules_hour->delete();
+            }
+        }
+    }
+
+    private function addMissingScheduleDays(User $user, array $schedule_hours): void
+    {
+        foreach ($schedule_hours as $schedule_hour) {
+            if(!$this->hasChildren($schedule_hour)){
+                continue;
+            }
+            $schedule_day = $this->findScheduleDayByName($user, $schedule_hour["day_name"]);
+            if($schedule_day){
+                $this->addMissingScheduleSegments($schedule_day, $schedule_hour);
+                continue;
+            }
+            $schedule_day = DoctorScheduleDay::create([
+                "user_id" => $user->id,
+                "day" => $schedule_hour["day_name"],
+            ]);
+            $this->createScheduleSegments($schedule_day, $schedule_hour);
+        }
+    }
+
+    private function addMissingScheduleSegments($schedule_day, array $schedule_hour): void
+    {
+        foreach ($schedule_hour["children"] as $children) {
+            $exists = $this->scheduleDayHasHour($schedule_day, $children["item"]["id"]);
+            if(!$exists){
+                DoctorScheduleJoinHour::create([
+                    "doctor_schedule_day_id" => $schedule_day->id,
+                    "doctor_schedule_hour_id" => $children["item"]["id"],
+                ]);
+            }
+        }
+    }
+
+    private function createScheduleSegments($schedule_day, array $schedule_hour): void
+    {
+        foreach ($schedule_hour["children"] as $children) {
+            DoctorScheduleJoinHour::create([
+                "doctor_schedule_day_id" => $schedule_day->id,
+                "doctor_schedule_hour_id" => $children["item"]["id"],
+            ]);
+        }
+    }
+
+    private function deleteScheduleDay($schedule_day): void
+    {
+        foreach ($schedule_day->schedules_hours as $schedules_hour) {
+            $schedules_hour->delete();
+        }
+        $schedule_day->delete();
+    }
+
+    private function findScheduleHourByDay(array $schedule_hours, string $day): ?array
+    {
+        foreach ($schedule_hours as $schedule_hour) {
+            if(($schedule_hour["day_name"] ?? null) === $day){
+                return $schedule_hour;
+            }
+        }
+        return null;
+    }
+
+    private function findScheduleDayByName(User $user, string $day)
+    {
+        foreach ($user->schedule_days as $schedule_day) {
+            if($schedule_day->day == $day){
+                return $schedule_day;
+            }
+        }
+        return null;
+    }
+
+    private function hasChildren(array $schedule_hour): bool
+    {
+        return sizeof($schedule_hour["children"]) > 0;
+    }
+
+    private function scheduleHourHasChild(array $schedule_hour, int $doctorScheduleHourId): bool
+    {
+        foreach ($schedule_hour["children"] as $children) {
+            if($doctorScheduleHourId == $children["item"]["id"]){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function scheduleDayHasHour($schedule_day, int $doctorScheduleHourId): bool
+    {
+        foreach ($schedule_day->schedules_hours as $schedules_hour) {
+            if($schedules_hour->doctor_schedule_hour_id == $doctorScheduleHourId){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -387,9 +416,9 @@ class DoctorsController extends Controller
         $this->authorize('deleteDoctor',Doctor::class);
         $user = User::findOrFail($id);
         $user->delete();
-        $cachedRecord = Redis::get('profile_doctor_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_KEY_PREFIX.$id);
         if(isset($cachedRecord)) {
-            Redis::del('profile_doctor_#'.$id);
+            Redis::del(self::CACHE_PROFILE_KEY_PREFIX.$id);
         }
         return response()->json([
             "message" => 200

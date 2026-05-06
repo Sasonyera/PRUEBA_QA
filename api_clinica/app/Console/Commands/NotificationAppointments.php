@@ -31,21 +31,20 @@ class NotificationAppointments extends Command
     {
         //
         date_default_timezone_set("America/Lima");
-        $simulet_hour_number = date("2023-11-27 9:20:35");//strtotime(date("2023-10-24 09:35:35"));
-        $appointments = Appointment::whereDate("date_appointment","2023-11-27")//now()->format("Y-m-d")
+        $now = now();
+        $currentDate = $now->format("Y-m-d");
+        $appointments = Appointment::whereDate("date_appointment", $currentDate)
                                     ->where("status",1)
                                     ->where("cron_state",1)
                                     ->get();
-        $now_time_number = strtotime($simulet_hour_number);//now()->format("Y-m-d h:i:s");//
+        $now_time_number = $now->timestamp;
         $patients = collect([]);
         foreach ($appointments as $key => $appointment) {
             $hour_start = $appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_start;
             $hour_end = $appointment->doctor_schedule_join_hour->doctor_schedule_hour->hour_end;
             
-            // 2023-10-25 08:30:00 -> 2023-10-25 07:30:00
-            $hour_start = strtotime(Carbon::parse("2023-11-27"." ".$hour_start)->subHour());
-            $hour_end = strtotime(Carbon::parse("2023-11-27"." ".$hour_end)->subHour());
-            // error_log($hour_start.' ---- '.$hour_end.' ---- '.$simulet_hour_number);
+            $hour_start = strtotime(Carbon::parse($currentDate." ".$hour_start)->subHour());
+            $hour_end = strtotime(Carbon::parse($currentDate." ".$hour_end)->subHour());
             if($hour_start <= $now_time_number && $hour_end >= $now_time_number){
                 $patients->push([
                     "name" => $appointment->patient->name,
