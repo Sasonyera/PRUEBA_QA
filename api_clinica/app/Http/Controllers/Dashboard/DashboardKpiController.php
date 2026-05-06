@@ -11,6 +11,9 @@ use App\Http\Resources\Appointment\AppointmentCollection;
 
 class DashboardKpiController extends Controller
 {
+    private const UNAUTHORIZED_MESSAGE = "EL USUARIO NO ESTA AUTORIZADO";
+    private const YEAR_APPOINTMENT_RAW = "YEAR(appointments.date_appointment) as year";
+    private const MONTH_APPOINTMENT_RAW = "MONTH(appointments.date_appointment) as month";
     
     public function config(){
         $users = User::orderBy("id","desc")
@@ -32,7 +35,7 @@ class DashboardKpiController extends Controller
     
     public function dashboard_admin(Request $request){
         if(!auth('api')->user()->can('admin_dashboard')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         date_default_timezone_set('America/Lima');
         // MES ACTUAL - APPOINTMENTS
@@ -141,7 +144,7 @@ class DashboardKpiController extends Controller
     public function dashboard_admin_year(Request $request) {
 
         if(!auth('api')->user()->can('admin_dashboard')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $year = $request->year;
 
@@ -149,8 +152,8 @@ class DashboardKpiController extends Controller
                         ->whereYear("appointments.date_appointment",$year)
                         ->join("patients","appointments.patient_id", "=", "patients.id")
                         ->select(
-                            DB::raw("YEAR(appointments.date_appointment) as year"),
-                            DB::raw("MONTH(appointments.date_appointment) as month"),
+                            DB::raw(self::YEAR_APPOINTMENT_RAW),
+                            DB::raw(self::MONTH_APPOINTMENT_RAW),
                             DB::raw("SUM(CASE WHEN patients.gender = 1 THEN 1 ELSE 0 END) as hombre"),
                             DB::raw("SUM(CASE WHEN patients.gender = 2 THEN 1 ELSE 0 END) as mujer")
                         )->groupBy("year",'month')
@@ -182,8 +185,8 @@ class DashboardKpiController extends Controller
                         ->whereYear("appointments.date_appointment",$year)
                         // ->where("appointments.status_pay",2)
                         ->select(
-                            DB::raw("YEAR(appointments.date_appointment) as year"),
-                            DB::raw("MONTH(appointments.date_appointment) as month"),
+                            DB::raw(self::YEAR_APPOINTMENT_RAW),
+                            DB::raw(self::MONTH_APPOINTMENT_RAW),
                             DB::raw("SUM(appointments.amount) as income")
                         )->groupBy("year",'month')
                         ->orderBy("year")
@@ -203,7 +206,7 @@ class DashboardKpiController extends Controller
     public function dashboard_doctor(Request $request){
 
         if(!auth('api')->user()->can('doctor_dashboard')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         date_default_timezone_set('America/Lima');
 
@@ -327,7 +330,7 @@ class DashboardKpiController extends Controller
     public function dashboard_doctor_year(Request $request) {
 
         if(!auth('api')->user()->can('doctor_dashboard')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $year = $request->year;
         $doctor_id = $request->doctor_id;
@@ -337,7 +340,7 @@ class DashboardKpiController extends Controller
                         ->where("appointments.doctor_id",$doctor_id)
                         ->join("patients","appointments.patient_id", "=", "patients.id")
                         ->select(
-                            DB::raw("YEAR(appointments.date_appointment) as year"),
+                            DB::raw(self::YEAR_APPOINTMENT_RAW),
                             DB::raw("SUM(CASE WHEN patients.gender = 1 THEN 1 ELSE 0 END) as hombre"),
                             DB::raw("SUM(CASE WHEN patients.gender = 2 THEN 1 ELSE 0 END) as mujer")
                         )->groupBy("year")
@@ -349,8 +352,8 @@ class DashboardKpiController extends Controller
                         ->where("appointments.doctor_id",$doctor_id)
                         // ->where("appointments.status_pay",2)
                         ->select(
-                            DB::raw("YEAR(appointments.date_appointment) as year"),
-                            DB::raw("MONTH(appointments.date_appointment) as month"),
+                            DB::raw(self::YEAR_APPOINTMENT_RAW),
+                            DB::raw(self::MONTH_APPOINTMENT_RAW),
                             DB::raw("SUM(appointments.amount) as income")
                         )->groupBy("year",'month')
                         ->orderBy("year")
@@ -362,8 +365,8 @@ class DashboardKpiController extends Controller
                                     ->whereYear("appointments.date_appointment",$year)
                                     ->where("appointments.doctor_id",$doctor_id)
                                     ->select(
-                                        DB::raw("YEAR(appointments.date_appointment) as year"),
-                                        DB::raw("MONTH(appointments.date_appointment) as month"),
+                                        DB::raw(self::YEAR_APPOINTMENT_RAW),
+                                        DB::raw(self::MONTH_APPOINTMENT_RAW),
                                         DB::raw("COUNT(*) as count_appointments")
                                     )->groupBy("year",'month')
                                     ->orderBy("year")
@@ -374,8 +377,8 @@ class DashboardKpiController extends Controller
                                     ->whereYear("appointments.date_appointment",$year - 1)
                                     ->where("appointments.doctor_id",$doctor_id)
                                     ->select(
-                                        DB::raw("YEAR(appointments.date_appointment) as year"),
-                                        DB::raw("MONTH(appointments.date_appointment) as month"),
+                                        DB::raw(self::YEAR_APPOINTMENT_RAW),
+                                        DB::raw(self::MONTH_APPOINTMENT_RAW),
                                         DB::raw("COUNT(*) as count_appointments")
                                     )->groupBy("year",'month')
                                     ->orderBy("year")

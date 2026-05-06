@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+    private const TIME_FORMAT = "h:i A";
     /**
      * Transform the resource into an array.
      *
@@ -34,7 +35,7 @@ class UserResource extends JsonResource
                     "day_name" => $schedule_day->day,
                     "hours_day" => [
                         "hour" => $schedules_hour->doctor_schedule_hour->hour,
-                        "format_hour" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour.":00:00")->format("h:i A"),
+                        "format_hour" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour.":00:00")->format(self::TIME_FORMAT),
                         "items" => [],
                     ],
                     "hour" => $schedules_hour->doctor_schedule_hour->hour,
@@ -43,8 +44,8 @@ class UserResource extends JsonResource
                         "id" => $schedules_hour->doctor_schedule_hour->id,
                         "hour_start" => $schedules_hour->doctor_schedule_hour->hour_start,
                         "hour_end" => $schedules_hour->doctor_schedule_hour->hour_end,
-                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour_start)->format("h:i A"),
-                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour_end)->format("h:i A"),
+                        "format_hour_start" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour_start)->format(self::TIME_FORMAT),
+                        "format_hour_end" => Carbon::parse(date("Y-m-d").' '.$schedules_hour->doctor_schedule_hour->hour_end)->format(self::TIME_FORMAT),
                         "hour" => $schedules_hour->doctor_schedule_hour->hour,
                     ],
                 ]);

@@ -17,6 +17,7 @@ use App\Http\Resources\Appointment\AppointmentCollection;
 
 class PatientController extends Controller
 {
+    private const CACHE_PROFILE_PREFIX = 'profile_patient_#';
     /**
      * Display a listing of the resource.
      */
@@ -38,7 +39,7 @@ class PatientController extends Controller
     public function profile($id) {
 
         $this->authorize('profile',Patient::class);
-        $cachedRecord = Redis::get('profile_patient_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_PREFIX.$id);
         $data_patient = [];
         if(isset($cachedRecord)) {
             $data_patient = json_decode($cachedRecord, FALSE);
@@ -87,7 +88,7 @@ class PatientController extends Controller
                     ];
                 }),
             ];
-            Redis::set('profile_patient_#'.$id, json_encode($data_patient),'EX', 3600);
+            Redis::set(self::CACHE_PROFILE_PREFIX.$id, json_encode($data_patient),'EX', 3600);
         }
 
 
@@ -175,9 +176,9 @@ class PatientController extends Controller
             $request->request->add(["birth_date" => Carbon::parse($date_clean)->format("Y-m-d h:i:s")]);
         }
 
-        $cachedRecord = Redis::get('profile_patient_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_PREFIX.$id);
         if(isset($cachedRecord)) {
-            Redis::del('profile_patient_#'.$id);
+            Redis::del(self::CACHE_PROFILE_PREFIX.$id);
         }
         // $request->request->add(["birth_date" => Carbon::parse($request->birth_date, 'GMT')->format("Y-m-d h:i:s")]);
         $patient->update($request->all());

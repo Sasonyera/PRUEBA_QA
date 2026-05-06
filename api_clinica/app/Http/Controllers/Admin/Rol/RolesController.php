@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 
 class RolesController extends Controller
 {
+    private const UNAUTHORIZED_MESSAGE = "EL USUARIO NO ESTA AUTORIZADO";
     /**
      * Display a listing of the resource.
      */
@@ -15,7 +16,7 @@ class RolesController extends Controller
     {
         // QUE EL FILTRO POR NOMBRE DE ROL
         if(!auth('api')->user()->can('list_rol')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $name = $request->search;
 
@@ -40,7 +41,7 @@ class RolesController extends Controller
     public function store(Request $request)
     {
         if(!auth('api')->user()->can('register_rol')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $is_role = Role::where("name",$request->name)->first();
 
@@ -70,7 +71,7 @@ class RolesController extends Controller
     public function show(string $id)
     {
         if(!auth('api')->user()->can('edit_rol')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $role = Role::findOrFail($id);
         return response()->json([
@@ -89,7 +90,7 @@ class RolesController extends Controller
     public function update(Request $request, string $id)
     {
         if(!auth('api')->user()->can('edit_rol')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $is_role = Role::where("id","<>",$id)->where("name",$request->name)->first();
 
@@ -116,7 +117,7 @@ class RolesController extends Controller
     public function destroy(string $id)
     {
         if(!auth('api')->user()->can('delete_rol')){
-            return response()->json(["message" => "EL USUARIO NO ESTA AUTORIZADO"],403);
+            return response()->json(["message" => self::UNAUTHORIZED_MESSAGE],403);
         }
         $role = Role::findOrFail($id);
         if($role->users->count() > 0){
