@@ -201,9 +201,9 @@ class PatientController extends Controller
         if($patient->avatar){
             Storage::delete($patient->avatar);
         }
-        $cachedRecord = Redis::get('profile_patient_#'.$id);
+        $cachedRecord = Redis::get(self::CACHE_PROFILE_PREFIX.$id);
         if(isset($cachedRecord)) {
-            Redis::del('profile_patient_#'.$id);
+            Redis::del(self::CACHE_PROFILE_PREFIX.$id);
         }
         $patient->delete();
         return response()->json([
